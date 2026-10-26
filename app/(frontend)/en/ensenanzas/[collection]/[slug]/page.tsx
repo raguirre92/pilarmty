@@ -17,7 +17,7 @@ type Props = {
   params: Promise<{ collection: string; slug: string }>;
 };
 
-export const revalidate = 300;
+export const revalidate = false;
 
 export async function generateStaticParams() {
   const teachings = await getTeachings("en");

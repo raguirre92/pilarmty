@@ -19,6 +19,7 @@ import type {
 } from "@/lib/types";
 import { normalizePathSegment } from "@/lib/site";
 import { payloadMediaUrl } from "@/lib/payload-media";
+import { publicationBodyCacheTag } from "@/lib/content-cache-policy";
 
 async function previewIsEnabled() {
   try {
@@ -177,14 +178,14 @@ async function queryTeachings(locale: Locale, preview: boolean) {
     return rightTime - leftTime;
   });
   return datedFirst
-    .map((doc) => mapTeaching(doc, locale, alternates.get(doc.id)))
+    .map((doc) => mapTeaching({ ...doc, body: preview ? doc.body : undefined }, locale, alternates.get(doc.id)))
     .filter((doc): doc is Teaching => Boolean(doc));
 }
 
 const cachedTeachings = unstable_cache(
   (locale: Locale) => queryTeachings(locale, false),
-  ["payload-teachings-v7"],
-  { revalidate: 300, tags: ["payload-content", "payload-teachings"] }
+  ["payload-teachings-catalog-v9"],
+  { revalidate: false, tags: ["payload-content", "payload-teachings"] }
 );
 
 export async function payloadTeachings(locale: Locale) {
@@ -197,11 +198,13 @@ export async function payloadTeaching(locale: Locale, collection: string, slug: 
   const docs = await payloadTeachings(locale);
   const normalizedCollection = normalizePathSegment(collection);
   const normalizedSlug = normalizePathSegment(slug);
-  return docs.find(
+  const teaching = docs.find(
     (doc) =>
       doc.collection.normalize("NFC") === normalizedCollection &&
       doc.slug.normalize("NFC") === normalizedSlug
   ) || null;
+  if (!teaching || await previewIsEnabled() || teaching.payloadId === undefined) return teaching;
+  return { ...teaching, body: await publicationBody("teachings", teaching.payloadId) };
 }
 
 async function queryCollections(locale: Locale, preview: boolean) {
@@ -222,7 +225,7 @@ async function queryCollections(locale: Locale, preview: boolean) {
 const cachedCollections = unstable_cache(
   (locale: Locale) => queryCollections(locale, false),
   ["payload-series-v6"],
-  { revalidate: 300, tags: ["payload-content", "payload-series"] }
+  { revalidate: false, tags: ["payload-content", "payload-series"] }
 );
 
 export async function payloadCollections(locale: Locale) {
@@ -249,7 +252,7 @@ async function queryTopicPublicationOverrides() {
 const cachedTopicPublicationOverrides = unstable_cache(
   queryTopicPublicationOverrides,
   ["payload-topic-pages-v2"],
-  { revalidate: 300, tags: ["payload-content", "payload-topics"] }
+  { revalidate: false, tags: ["payload-content", "payload-topics"] }
 );
 
 export async function payloadManuallyPublishedTopicSlugs() {
@@ -278,14 +281,14 @@ async function queryResources(locale: Locale, preview: boolean) {
   });
   const alternates = new Map();
   return result.docs.map((doc) =>
-    mapResource(doc, locale, alternates.get(doc.id))
+    mapResource({ ...doc, body: preview ? doc.body : undefined }, locale, alternates.get(doc.id))
   );
 }
 
 const cachedResources = unstable_cache(
   (locale: Locale) => queryResources(locale, false),
-  ["payload-resources-v2"],
-  { revalidate: 300, tags: ["payload-content", "payload-resources"] }
+  ["payload-resources-catalog-v4"],
+  { revalidate: false, tags: ["payload-content", "payload-resources"] }
 );
 
 export async function payloadResources(locale: Locale) {
@@ -297,7 +300,9 @@ export async function payloadResources(locale: Locale) {
 export async function payloadResource(locale: Locale, slug: string) {
   const docs = await payloadResources(locale);
   const normalizedSlug = normalizePathSegment(slug);
-  return docs.find((doc) => doc.slug.normalize("NFC") === normalizedSlug) || null;
+  const resource = docs.find((doc) => doc.slug.normalize("NFC") === normalizedSlug) || null;
+  if (!resource || await previewIsEnabled() || resource.payloadId === undefined) return resource;
+  return { ...resource, body: await publicationBody("resources", resource.payloadId) };
 }
 
 export async function payloadRedirect(source: string) {
@@ -313,4 +318,19 @@ export async function payloadRedirect(source: string) {
   return redirect
     ? { destination: redirect.destination, permanent: redirect.permanent !== false }
     : null;
+}
+
+/** Keep each long body out of the shared catalog cache. */
+async function publicationBody(collection: "teachings" | "resources", id: number | string) {
+  return (await unstable_cache(async () => {
+    const payload = await getPayload({ config });
+    const result = await payload.find({
+      collection, where: { and: [{ id: { equals: id } }, { _status: { equals: "published" } }] },
+      locale: "es", fallbackLocale: "es", depth: 2, limit: 1,
+      select: { body: true }, overrideAccess: false
+    });
+    return result.docs[0]?.body as Record<string, unknown> | undefined || null;
+  }, ["payload-publication-body-v1", collection, String(id)], {
+    revalidate: false, tags: [publicationBodyCacheTag(collection, id), "payload-body-media"]
+  })()) ?? undefined;
 }
