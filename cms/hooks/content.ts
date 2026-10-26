@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag } from "next/cache";
+import { editorialInvalidationPaths, publicationBodyCacheTag, publicContentChanged } from "@/lib/content-cache-policy";
 import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
@@ -78,14 +79,16 @@ async function upsertRedirect(req: PayloadRequest, source: string, destination: 
   }
 }
 
-function invalidate(paths: Array<string | undefined>) {
+function invalidate(paths: Array<string | undefined>, collection?: string, id?: number | string) {
   try {
     revalidateTag("payload-content", "max");
-    for (const path of new Set(["/", "/recursos", "/ensenanzas", "/visitanos", "/comunidades", "/en", "/en/visitanos", "/en/comunidades", ...paths])) {
+    if (collection === "media") revalidateTag("payload-body-media", "max");
+    if ((collection === "teachings" || collection === "resources") && id !== undefined) {
+      revalidateTag(publicationBodyCacheTag(collection, id), "max");
+    }
+    for (const path of new Set([...editorialInvalidationPaths(collection), ...paths])) {
       if (path) revalidatePath(path);
     }
-    revalidatePath("/sitemap-es.xml");
-    revalidatePath("/sitemap-en.xml");
   } catch {
     // Hooks also run from standalone migration scripts, where Next cache state is absent.
   }
@@ -117,6 +120,8 @@ export const afterEditorialChange = (
   async ({ doc, previousDoc, req }) => {
     const current = doc as DocumentData;
     const previous = previousDoc as DocumentData | undefined;
+    if (req.query?.autosave === "true" || req.query?.autosave === true ||
+        !publicContentChanged(collection, current, previous)) return doc;
     const currentPath = await publicPath(collection, current, req);
     const previousPath = previous
       ? await publicPath(collection, previous, req)
@@ -161,7 +166,7 @@ export const afterEditorialChange = (
       }
     }
 
-    invalidate([previousPath, currentPath]);
+    invalidate([previousPath, currentPath], collection, current.id);
     return doc;
   };
 
@@ -169,16 +174,18 @@ export const afterEditorialDelete = (
   collection: EditorialCollection
 ): CollectionAfterDeleteHook =>
   async ({ doc, req }) => {
-    invalidate([await publicPath(collection, doc as DocumentData, req)]);
+    invalidate([await publicPath(collection, doc as DocumentData, req)], collection, doc.id);
     return doc;
   };
 
-export const afterRelatedContentChange: CollectionAfterChangeHook = ({ doc }) => {
-  invalidate([]);
+export const afterRelatedContentChange: CollectionAfterChangeHook = ({ doc, previousDoc, collection }) => {
+  if (publicContentChanged(collection.slug, doc, previousDoc)) {
+    invalidate([], collection.slug);
+  }
   return doc;
 };
 
-export const afterRelatedContentDelete: CollectionAfterDeleteHook = ({ doc }) => {
-  invalidate([]);
+export const afterRelatedContentDelete: CollectionAfterDeleteHook = ({ doc, collection }) => {
+  invalidate([], collection.slug);
   return doc;
 };

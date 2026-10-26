@@ -8,7 +8,7 @@ import { pageMetadata, safeJsonLd } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const revalidate = 300;
+export const revalidate = false;
 
 export async function generateStaticParams() {
   const resources = await getResources("es");
