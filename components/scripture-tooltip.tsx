@@ -266,7 +266,7 @@ export function ScriptureTooltip({
                   data-scroll-down={scrollState.canScrollDown}
                   onScroll={checkScroll}
                 >
-                  {content.content}
+                  {content.content.replace(/\u00B6\s*/g, " ").trim()}
                 </p>
                 <p className="scripture-popover-cite">
                   {content.reference} · {locale === "es" ? "NBLA" : "ASV"}
