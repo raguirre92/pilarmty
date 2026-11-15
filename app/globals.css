@@ -5700,7 +5700,6 @@ body.resource-filters-open {
   display: flex;
   justify-content: flex-end;
   padding: 16px 0;
-  border-bottom: 1px solid var(--line);
 }
 
 .beliefs-accordion-toolbar button {
@@ -5719,8 +5718,12 @@ body.resource-filters-open {
   color: var(--accent);
 }
 
-.beliefs-accordion-item {
+.beliefs-accordion-list {
   border-bottom: 1px solid var(--line);
+}
+
+.beliefs-accordion-item {
+  border-top: 1px solid var(--line);
 }
 
 .beliefs-accordion-item h3 {
