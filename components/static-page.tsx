@@ -807,7 +807,7 @@ function AboutPage({ locale }: { locale: Locale }) {
               "Creemos que el bautismo cristiano es la inmersión en agua de una persona creyente, como imagen de su unión con Cristo en su muerte, sepultura y resurrección. En la Cena del Señor, la iglesia recuerda junta el amor y la muerte de Cristo mediante el pan y la copa, después de examinarse a sí misma."
           },
           {
-            title: "Del matrimonio y la familia",
+            title: "El Matrimonio y la Familia",
             description:
               "Creemos que Dios instituyó la familia como fundamento de la sociedad, unida por matrimonio, sangre o adopción. El matrimonio es el pacto de un hombre y una mujer para toda la vida, el marco bíblico para la intimidad sexual y la procreación. Los hijos, desde la concepción, son bendición y herencia del Señor."
           },
