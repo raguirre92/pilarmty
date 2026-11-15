@@ -6914,6 +6914,30 @@ body.resource-filters-open {
   color: var(--text-soft);
 }
 
+@media (max-width: 719px) {
+  .site-header,
+  .nav-shell {
+    height: 80px;
+  }
+
+  .nav-shell {
+    min-height: 80px;
+  }
+
+  .brand {
+    height: 64px;
+  }
+
+  .brand img {
+    height: 44px;
+  }
+
+  .mobile-menu-trigger {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 @media (min-width: 720px) {
   .container {
     width: min(calc(100% - 48px), var(--max-content));
