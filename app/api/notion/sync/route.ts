@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag } from "next/cache";
+import { shouldInvalidateNotionFallback } from "@/lib/content-cache-policy";
 import { getPayload } from "payload";
 
 import { runNotionPayloadSync } from "@/lib/notion-payload-reconcile";
@@ -27,8 +28,10 @@ async function execute(trigger: "manual" | "cron") {
 
   const history = await recordSyncRun(entry);
 
-  revalidateTag("notion-content", "max");
-  revalidatePath("/", "layout");
+  if (shouldInvalidateNotionFallback(process.env.CONTENT_SOURCE, result.notionToPayload)) {
+    revalidateTag("notion-content", "max");
+    revalidatePath("/", "layout");
+  }
   return Response.json({
     ok: result.errors.length === 0,
     result,

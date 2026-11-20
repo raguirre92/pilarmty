@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { shouldInvalidateNotionFallback } from "@/lib/content-cache-policy";
 import { getPayload } from "payload";
 
 import { syncNotionPage } from "@/lib/notion";
@@ -47,7 +48,10 @@ export async function POST(request: Request) {
     await reconcileNotionPage(cms, pageId);
   }
 
-  revalidateTag("notion-content", "max");
-  revalidatePath("/", "layout");
+  if (pageId && payload.type?.startsWith("page.") &&
+      shouldInvalidateNotionFallback(process.env.CONTENT_SOURCE, 1)) {
+    revalidateTag("notion-content", "max");
+    revalidatePath("/", "layout");
+  }
   return Response.json({ ok: true });
 }

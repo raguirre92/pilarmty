@@ -14,7 +14,7 @@ import {
 
 type Props = { params: Promise<{ tema: string }> };
 
-export const revalidate = 300;
+export const revalidate = false;
 
 export async function generateStaticParams() {
   const [teachings, resources, publication] = await Promise.all([
