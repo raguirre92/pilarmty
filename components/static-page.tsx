@@ -386,7 +386,7 @@ const beliefReferences = [
   ["Mateo 5:17", "Romanos 3:31", "Romanos 8:2–4"],
   ["Hechos 2:41–42", "Mateo 18:15–20", "1 Timoteo 3:1–13"],
   ["Mateo 28:19–20", "Romanos 6:4", "1 Corintios 11:23–28"],
-  ["Hechos 20:7", "Hebreos 4:3–11", "Hebreos 10:24–25"],
+  ["Mateo 19:4–6", "Salmo 127:3", "Salmo 139:13–16"],
   ["Romanos 13:1–7", "1 Timoteo 2:1–4", "Hechos 5:29"],
   ["Malaquías 3:18", "Juan 3:36", "Mateo 7:13–14"],
   ["1 Tesalonicenses 4:13–18", "Mateo 25:31–46", "Apocalipsis 20:11–12"]
@@ -807,9 +807,9 @@ function AboutPage({ locale }: { locale: Locale }) {
               "Creemos que el bautismo cristiano es la inmersión en agua de una persona creyente, como imagen de su unión con Cristo en su muerte, sepultura y resurrección. En la Cena del Señor, la iglesia recuerda junta el amor y la muerte de Cristo mediante el pan y la copa, después de examinarse a sí misma."
           },
           {
-            title: "El Día del Señor",
+            title: "El Matrimonio y la Familia",
             description:
-              "Creemos que el primer día de la semana es el Día del Señor y debe dedicarse de manera especial a la adoración y a los propósitos de Dios. En él participamos con devoción de los medios de gracia, tanto públicos como privados, mientras esperamos el descanso definitivo del pueblo de Dios."
+              "Creemos que Dios instituyó la familia como fundamento de la sociedad, unida por matrimonio, sangre o adopción. El matrimonio es el pacto de un hombre y una mujer para toda la vida, el marco bíblico para la intimidad sexual y la procreación. Los hijos, desde la concepción, son bendición y herencia del Señor."
           },
           {
             title: "El gobierno civil",
@@ -902,9 +902,9 @@ function AboutPage({ locale }: { locale: Locale }) {
               "We believe in believers' baptism by immersion and the Lord's Supper as the church's remembrance of Christ's love."
           },
           {
-            title: "The Lord's Day",
+            title: "Marriage and family",
             description:
-              "We believe the first day of the week should be devoted to the Lord, worship, and the public and private means of grace."
+              "We believe God established the family as the foundation of society, united by marriage, blood, or adoption. Marriage is a lifelong covenant between one man and one woman, the biblical setting for sexual intimacy and procreation. Children, from conception, are a blessing and a heritage from the Lord."
           },
           {
             title: "Civil government",

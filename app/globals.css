@@ -5700,7 +5700,6 @@ body.resource-filters-open {
   display: flex;
   justify-content: flex-end;
   padding: 16px 0;
-  border-bottom: 1px solid var(--line);
 }
 
 .beliefs-accordion-toolbar button {
@@ -5719,8 +5718,12 @@ body.resource-filters-open {
   color: var(--accent);
 }
 
-.beliefs-accordion-item {
+.beliefs-accordion-list {
   border-bottom: 1px solid var(--line);
+}
+
+.beliefs-accordion-item {
+  border-top: 1px solid var(--line);
 }
 
 .beliefs-accordion-item h3 {
@@ -6909,6 +6912,30 @@ body.resource-filters-open {
 
 :root[data-theme="dark"] .community-interest-form .form-status {
   color: var(--text-soft);
+}
+
+@media (max-width: 719px) {
+  .site-header,
+  .nav-shell {
+    height: 80px;
+  }
+
+  .nav-shell {
+    min-height: 80px;
+  }
+
+  .brand {
+    height: 64px;
+  }
+
+  .brand img {
+    height: 44px;
+  }
+
+  .mobile-menu-trigger {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 @media (min-width: 720px) {
